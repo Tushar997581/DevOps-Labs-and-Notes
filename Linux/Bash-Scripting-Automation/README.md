@@ -81,7 +81,7 @@ echo "Tushar:"
 
 read name
 
-echo "Hello Tushar"
+echo "Hello $name"
 ```
 
 ---
