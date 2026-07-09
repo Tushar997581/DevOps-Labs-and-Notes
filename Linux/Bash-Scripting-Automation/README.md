@@ -77,11 +77,11 @@ Read input from user:
 ```bash
 #!/bin/bash
 
-echo "Enter your name:"
+echo "Tushar:"
 
 read name
 
-echo "Hello $name"
+echo "Hello Tushar"
 ```
 
 ---
