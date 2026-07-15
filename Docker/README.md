@@ -2,48 +2,36 @@
 
 # Complete Docker Guide for DevOps Engineers
 
-Docker is an open-source containerization platform that allows developers and DevOps engineers to build, package, distribute, and run applications consistently across different environments.
+Docker is an open-source containerization platform that enables developers to build, package, ship, and run applications inside lightweight, portable environments called **containers**.
 
-Instead of worrying about whether an application works on one machine but not another, Docker packages the application together with its dependencies, libraries, runtime, and configuration into a lightweight unit called a **container**.
+Docker solves one of the biggest software deployment challenges:
 
-Docker has become one of the most important tools in modern DevOps because it enables faster development, easier deployment, better scalability, and consistent application environments.
+> **"It works on my machine."**
 
----
+By packaging an application together with its runtime, libraries, dependencies, and configuration files, Docker ensures that applications behave consistently across development, testing, and production environments.
 
-# 🎯 Learning Objectives
+Today Docker is one of the core technologies behind:
 
-After completing this section, you will be able to:
+- Microservices
+- Kubernetes
+- CI/CD Pipelines
+- Cloud Computing
+- DevOps
+- Platform Engineering
 
-- Understand containerization
-- Understand Docker architecture
-- Install Docker
-- Work with Docker Images
-- Manage Containers
-- Write Dockerfiles
-- Use Docker Compose
-- Manage Docker Networks
-- Manage Docker Volumes
-- Build Multi-Container Applications
-- Optimize Docker Images
-- Secure Docker Containers
-- Deploy production-ready applications
+Docker follows the **Open Container Initiative (OCI)** standards, making container images and runtimes interoperable across different platforms.
 
 ---
 
 # 📖 What is Docker?
 
-Docker is a containerization platform that packages an application and all its dependencies into a standardized unit called a **container**.
+Docker is a **containerization platform**.
 
-A container includes:
+It allows applications to run inside isolated environments called **containers**.
 
-- Application Code
-- Runtime
-- Libraries
-- Dependencies
-- System Tools
-- Configuration Files
+Unlike Virtual Machines, Docker containers **share the host operating system kernel**, making them lightweight and extremely fast.
 
-Example:
+Example
 
 ```text
 Application
@@ -61,47 +49,69 @@ Docker Container
 Runs Anywhere
 ```
 
-This ensures the application behaves the same way regardless of where it is deployed.
+---
+
+# Learning Objectives
+
+After completing this guide you will understand
+
+- Docker
+- Containerization
+- Docker Architecture
+- Docker Engine
+- Docker Daemon
+- Docker Client
+- Docker Images
+- Docker Containers
+- Docker Registry
+- Docker Networking
+- Docker Storage
+- OCI Standards
+- Production Docker Workflow
+- Docker Best Practices
 
 ---
 
-# Why Do We Need Docker?
+# Why Docker?
 
-Imagine a developer builds an application on their laptop.
+Imagine a Python application.
 
-```text
 Developer Laptop
 
-↓
+```text
+Python 3.12
+
+Flask
+
+Redis
 
 Works Perfectly
 ```
 
-After deploying to a server:
-
-```text
 Production Server
 
-↓
+```text
+Python 3.9
 
-Application Fails
+Old Libraries
+
+Application Crash
 ```
 
-Reasons may include:
+This happens because environments are different.
 
-- Different OS versions
-- Missing libraries
-- Different runtime versions
-- Configuration differences
-
-This problem is commonly summarized as:
-
-> "It works on my machine."
-
-Docker solves this by packaging everything the application needs.
+Docker packages everything together.
 
 ```text
 Application
+
+↓
+
+Dependencies
+
+↓
+
+Runtime
 
 ↓
 
@@ -113,7 +123,7 @@ Container
 
 ↓
 
-Runs the Same Everywhere
+Runs Identically Everywhere
 ```
 
 Benefits
@@ -122,88 +132,75 @@ Benefits
 
 ✔ Fast Deployment
 
-✔ Isolation
-
 ✔ Portability
 
 ✔ Scalability
 
+✔ Isolation
+
 ✔ Easy Rollback
 
----
-
-# What is a Container?
-
-A container is a lightweight, isolated runtime environment that shares the host operating system kernel while packaging an application with everything it needs to run.
-
-Container contains:
-
-```text
-Application
-
-Libraries
-
-Runtime
-
-Dependencies
-
-Configuration
-```
-
-Containers are:
-
-- Lightweight
-- Fast
-- Portable
-- Isolated
+✔ Better Resource Utilization
 
 ---
 
 # What is Containerization?
 
-Containerization is the process of packaging an application together with its dependencies into a container.
+Containerization is the process of packaging:
+
+- Application
+- Runtime
+- Libraries
+- Dependencies
+- Configuration
+
+into a single executable unit called a **Container**.
 
 Example
 
 ```text
-Application
+Python App
 
 ↓
 
-Container
+Docker Image
 
 ↓
 
-Runs on
+Docker Container
+
+↓
 
 Laptop
 
-Server
+↓
 
-Cloud
+AWS EC2
+
+↓
+
+Azure VM
+
+↓
+
+Google Cloud
+
+↓
 
 Kubernetes
 ```
 
+Same application.
+
+Same behavior.
+
+Different environments.
+
 ---
 
-# Why Containers Instead of Virtual Machines?
+# Virtual Machines vs Containers
 
-Traditional deployment
-
-```text
-Application
-
-↓
-
-Operating System
-
-↓
-
-Hardware
-```
-
-Virtualization
+Traditional Virtualization
 
 ```text
 Application
@@ -215,6 +212,10 @@ Guest OS
 ↓
 
 Hypervisor
+
+↓
+
+Host OS
 
 ↓
 
@@ -239,54 +240,60 @@ Host Operating System
 Hardware
 ```
 
-Containers do not require a full guest operating system, making them much lighter.
+Containers remove the need for a complete Guest Operating System.
 
 ---
 
-# Virtual Machine vs Docker
+# Docker vs Virtual Machine
 
 | Feature | Virtual Machine | Docker Container |
 |----------|-----------------|------------------|
 | Guest OS | Required | Not Required |
 | Startup Time | Minutes | Seconds |
-| Resource Usage | High | Low |
-| Size | GBs | MBs |
-| Performance | Lower | Higher |
-| Portability | Limited | Excellent |
-| Isolation | Strong | Process-level |
+| Image Size | GB | MB |
+| Memory Usage | High | Low |
+| Performance | Lower | Near Native |
+| Isolation | Strong | Process Isolation |
+| Portability | Moderate | Excellent |
 
 ---
 
 # Docker Architecture
 
+Docker uses a **client-server architecture**.
+
 ```text
-                Developer
+                    Developer
 
-                     │
+                        │
 
-               Docker CLI
+                  Docker CLI
 
-                     │
+                        │
 
-               Docker Engine
+             REST API Request
 
-        ┌────────────┼────────────┐
+                        │
 
-        │            │            │
+                Docker Daemon
 
-     Images      Containers     Networks
+        ┌───────────────┼───────────────┐
 
-        │            │            │
+        │               │               │
 
-        └────────────┼────────────┘
+     Images        Containers      Networks
 
-                     │
+        │               │               │
 
-              Host Operating System
+        └───────────────┼───────────────┘
 
-                     │
+                        │
 
-                  Hardware
+                 Linux Kernel
+
+                        │
+
+                  Host Hardware
 ```
 
 ---
@@ -302,141 +309,116 @@ Docker
 
 ├── Docker Client
 
-├── Docker Engine
-
 ├── Docker Daemon
+
+├── Docker Engine
 
 ├── Docker Images
 
 ├── Docker Containers
 
+├── Docker Registry
+
 ├── Docker Networks
 
 ├── Docker Volumes
 
-└── Docker Registry
+└── BuildKit
 ```
 
 ---
 
 # Docker Client
 
-The Docker Client is the command-line interface (CLI) used to interact with Docker.
+The Docker Client is the command-line interface (CLI) used by users.
 
-Example:
+Example
 
 ```bash
 docker run nginx
 ```
 
-The CLI sends requests to the Docker Daemon.
+The CLI sends REST API requests to the Docker Daemon.
 
 ---
 
 # Docker Daemon
 
-The Docker Daemon (`dockerd`) is the background service responsible for:
+The Docker Daemon (`dockerd`) is the background service that manages Docker objects.
 
-- Building images
-- Running containers
-- Managing networks
-- Managing volumes
-- Pulling images
-- Communicating with registries
+Responsibilities
+
+- Build Images
+- Run Containers
+- Manage Networks
+- Manage Volumes
+- Pull Images
+- Push Images
+- Handle Registries
+
+The daemon continuously listens for API requests.
 
 ---
 
 # Docker Engine
 
-Docker Engine includes:
+Docker Engine is the core runtime.
 
-- Docker Daemon
+It includes
+
 - Docker CLI
-- Docker REST API
+- Docker Daemon
+- REST API
 
-It is the core runtime that powers Docker.
+Docker Engine is responsible for managing the complete container lifecycle.
+
+---
+
+# Docker REST API
+
+Docker CLI communicates with Docker Daemon using the Docker REST API.
+
+Example
+
+```text
+docker run nginx
+
+↓
+
+Docker CLI
+
+↓
+
+REST API
+
+↓
+
+Docker Daemon
+
+↓
+
+Container Created
+```
+
+This architecture also allows external tools to interact with Docker programmatically.
 
 ---
 
 # Docker Images
 
-A Docker Image is a read-only template used to create containers.
+A Docker Image is a read-only template.
 
-Examples:
+It contains
 
-- nginx
-- ubuntu
-- mysql
-- redis
-- node
-- python
+- Application
+- Runtime
+- Libraries
+- Packages
+- Configuration
 
-Images are built from Dockerfiles.
-
----
-
-# Docker Containers
-
-A container is a running instance of an image.
+Images are built using a **Dockerfile**.
 
 Example
-
-```text
-Docker Image
-
-↓
-
-docker run
-
-↓
-
-Running Container
-```
-
----
-
-# Docker Registry
-
-A registry stores Docker Images.
-
-Examples:
-
-- Docker Hub
-- Amazon ECR
-- GitHub Container Registry
-- Azure Container Registry
-
----
-
-# Docker Workflow
-
-```text
-Write Dockerfile
-
-↓
-
-Build Image
-
-↓
-
-Run Container
-
-↓
-
-Test Application
-
-↓
-
-Push Image
-
-↓
-
-Deploy
-```
-
----
-
-# Docker Image Lifecycle
 
 ```text
 Dockerfile
@@ -451,11 +433,131 @@ Docker Image
 
 ↓
 
+docker run
+
+↓
+
+Container
+```
+
+---
+
+# Docker Containers
+
+A container is a running instance of an image.
+
+Example
+
+```text
+Ubuntu Image
+
+↓
+
+docker run ubuntu
+
+↓
+
+Ubuntu Container
+```
+
+Containers are:
+
+- Lightweight
+- Portable
+- Isolated
+- Temporary by default
+
+---
+
+# Docker Registry
+
+A Docker Registry stores Docker Images.
+
+Examples
+
+- Docker Hub
+- Amazon Elastic Container Registry (ECR)
+- GitHub Container Registry (GHCR)
+- Azure Container Registry (ACR)
+
+Workflow
+
+```text
+Build Image
+
+↓
+
+Push
+
+↓
+
+Registry
+
+↓
+
+Pull
+
+↓
+
+Run Container
+```
+
+---
+
+# Docker Image Layers
+
+Docker Images are built using layers.
+
+Example
+
+```text
+Ubuntu
+
+↓
+
+Python
+
+↓
+
+Flask
+
+↓
+
+Application
+```
+
+Every instruction in a Dockerfile creates a new layer (where applicable), enabling layer caching and efficient image distribution.
+
+Benefits
+
+✔ Smaller Downloads
+
+✔ Faster Builds
+
+✔ Layer Reuse
+
+---
+
+# Docker Lifecycle
+
+```text
+Dockerfile
+
+↓
+
+docker build
+
+↓
+
+Image
+
+↓
+
 docker push
 
 ↓
 
-Docker Registry
+Registry
 
 ↓
 
@@ -468,19 +570,160 @@ docker run
 ↓
 
 Container
+
+↓
+
+docker stop
+
+↓
+
+docker rm
+```
+
+---
+
+# How Docker Works Internally
+
+When you execute:
+
+```bash
+docker run nginx
+```
+
+Docker performs the following steps:
+
+1. Checks if the image exists locally.
+2. Pulls the image from the registry if necessary.
+3. Creates a writable container layer.
+4. Configures networking.
+5. Configures storage.
+6. Starts the container process.
+7. Streams logs to Docker.
+
+---
+
+# Linux Technologies Behind Docker
+
+Docker relies on Linux kernel features.
+
+## Namespaces
+
+Namespaces isolate resources.
+
+Examples
+
+- Process IDs (PID)
+- Network
+- Mount Points
+- Users
+- Hostname
+
+Each container gets its own isolated view.
+
+---
+
+## Control Groups (cgroups)
+
+Control Groups limit resource usage.
+
+Examples
+
+- CPU
+- Memory
+- Disk I/O
+- Network
+
+This prevents one container from consuming all host resources.
+
+---
+
+## Union File System
+
+Docker uses layered file systems.
+
+Example
+
+```text
+Ubuntu Layer
+
+↓
+
+Python Layer
+
+↓
+
+Application Layer
+
+↓
+
+Writable Layer
+```
+
+Only the top writable layer changes when the container runs.
+
+---
+
+# OCI Standards
+
+Docker follows the Open Container Initiative standards.
+
+OCI defines:
+
+- Image Specification
+- Runtime Specification
+- Distribution Specification
+
+This enables compatibility with runtimes such as **containerd** and **CRI-O**.
+
+---
+
+# Production Docker Workflow
+
+```text
+Developer
+
+↓
+
+GitHub
+
+↓
+
+CI/CD Pipeline
+
+↓
+
+docker build
+
+↓
+
+Docker Image
+
+↓
+
+Security Scan
+
+↓
+
+Docker Registry
+
+↓
+
+Kubernetes
+
+↓
+
+Production
 ```
 
 ---
 
 # Docker in DevOps
 
-Docker is commonly used for:
-
-✔ Application Packaging
-
-✔ CI/CD Pipelines
+Docker is used for
 
 ✔ Microservices
+
+✔ CI/CD
 
 ✔ Kubernetes
 
@@ -490,82 +733,7 @@ Docker is commonly used for:
 
 ✔ Local Development
 
----
-
-# Real Production Architecture
-
-```text
-               Developer
-
-                    │
-
-                GitHub
-
-                    │
-
-             GitHub Actions
-
-                    │
-
-             Build Docker Image
-
-                    │
-
-              Docker Registry
-
-                    │
-
-             Kubernetes Cluster
-
-        ┌────────────┼────────────┐
-
-        │            │            │
-
-   Container    Container    Container
-
-                    │
-
-            Application Users
-```
-
----
-
-# Benefits of Docker
-
-✔ Faster Deployment
-
-✔ Lightweight
-
-✔ Portable
-
-✔ Consistent Environment
-
-✔ Easy Scaling
-
-✔ Better Resource Utilization
-
-✔ Version Control for Images
-
-✔ Easy Rollback
-
-✔ Simplified CI/CD
-
-✔ Cloud Native
-
----
-
-# Common Use Cases
-
-Docker is widely used for:
-
-- Web Applications
-- REST APIs
-- Microservices
-- Machine Learning Applications
-- Databases
-- CI/CD Pipelines
-- Kubernetes Deployments
-- Development Environments
+✔ Platform Engineering
 
 ---
 
@@ -581,129 +749,191 @@ Docker is widely used for:
 
 ✔ Use `.dockerignore`
 
-✔ Pin image versions instead of relying on `latest`
+✔ Pin image versions instead of `latest`
 
-✔ Store secrets securely
+✔ Scan images regularly
 
-✔ Scan images for vulnerabilities
+✔ Store secrets outside images
 
-✔ Use health checks
+✔ Keep containers immutable
 
-✔ Monitor container logs
+✔ Monitor logs and resource usage
 
 ---
 
-# Docker Ecosystem
+# Common Docker Commands
 
-```text
-Docker
+```bash
+docker version
 
-│
+docker info
 
-├── Docker Hub
+docker pull nginx
 
-├── Docker Desktop
+docker images
 
-├── Docker Engine
+docker run nginx
 
-├── Docker Compose
+docker ps
 
-├── BuildKit
+docker stop
 
-├── Docker Scout
+docker start
 
-└── Docker Extensions
+docker restart
+
+docker logs
+
+docker exec -it
+
+docker inspect
+
+docker rm
+
+docker rmi
 ```
 
 ---
 
-# Learning Path
+# Common Mistakes
 
-```text
-03-Docker/
+❌ Using `latest` in production
 
-│
+❌ Running containers as root
 
-├── README
+❌ Storing secrets inside images
 
-├── Docker
+❌ Creating very large images
 
-├── Installation
+❌ Ignoring health checks
 
-├── Docker Architecture
+❌ Not cleaning unused images
 
-├── Images
+---
 
-├── Containers
+# Troubleshooting
 
-├── Dockerfile
+## Docker Daemon Not Running
 
-├── Volumes
+```bash
+sudo systemctl status docker
+```
 
-├── Bind Mounts
+Start Docker
 
-├── Networks
-
-├── Docker Compose
-
-├── Registries
-
-├── Docker Hub
-
-├── Environment Variables
-
-├── Logs
-
-├── Inspect
-
-├── Exec
-
-├── Build
-
-├── Push & Pull
-
-├── Security
-
-├── Optimization
-
-├── Projects
-
-├── Practice Lab
-
-└── Screenshots
+```bash
+sudo systemctl start docker
 ```
 
 ---
 
-# Projects Included
+## Permission Denied
 
-## Project 1
+```bash
+sudo usermod -aG docker $USER
+```
 
-Containerize a Python Flask Application
-
----
-
-## Project 2
-
-Containerize a Node.js Application
+Log out and back in for the group change to take effect.
 
 ---
 
-## Project 3
+## Port Already Allocated
 
-Deploy WordPress with MySQL using Docker Compose
-
----
-
-## Project 4
-
-Deploy a Three-Tier Application
+Find the process using the port or choose another port mapping.
 
 ---
 
-## Project 5
+## No Space Left on Device
 
-Deploy a Production Multi-Container Application
+Clean unused resources:
+
+```bash
+docker system prune
+```
+
+Review what will be removed before confirming.
+
+---
+
+# Real Production Architecture
+
+```text
+                  Developer
+
+                       │
+
+                  GitHub Repo
+
+                       │
+
+                GitHub Actions
+
+                       │
+
+                Docker Build
+
+                       │
+
+               Security Scan
+
+                       │
+
+             Docker Registry
+
+                       │
+
+               Kubernetes
+
+          ┌────────────┼────────────┐
+
+          │            │            │
+
+     Container     Container    Container
+
+          │            │            │
+
+             Production Users
+```
+
+---
+
+# Interview Questions
+
+### What is Docker?
+
+Docker is an open-source containerization platform used to package and run applications in isolated containers.
+
+---
+
+### What is the difference between an Image and a Container?
+
+An Image is a read-only template.
+
+A Container is a running instance of an Image.
+
+---
+
+### What is Docker Engine?
+
+Docker Engine is the runtime that includes the Docker Daemon, Docker CLI, and REST API.
+
+---
+
+### What are Namespaces?
+
+Namespaces isolate system resources so that each container has its own independent environment.
+
+---
+
+### What are cgroups?
+
+Control Groups (cgroups) limit and monitor CPU, memory, and other resource usage for containers.
+
+---
+
+### What is OCI?
+
+The Open Container Initiative (OCI) defines open standards for container images and runtimes, enabling interoperability across container platforms.
 
 ---
 
@@ -712,70 +942,67 @@ Deploy a Production Multi-Container Application
 - Docker Documentation
 - Docker Engine Documentation
 - Docker CLI Reference
-- Docker Compose Documentation
 - Docker Build Documentation
-- Docker Hub Documentation
-- OCI (Open Container Initiative) Specifications
+- Docker Compose Documentation
+- OCI Image Specification
+- OCI Runtime Specification
 
 ---
 
-# Skills You Will Gain
+# Quick Revision
+
+```text
+Docker → Container Platform
+
+Image → Read-only Template
+
+Container → Running Image
+
+Dockerfile → Image Blueprint
+
+Docker Engine → Runtime
+
+Docker Daemon → Background Service
+
+Docker CLI → User Interface
+
+Registry → Stores Images
+
+Namespaces → Isolation
+
+cgroups → Resource Control
+
+OCI → Container Standards
+```
+
+---
+
+# Skills Covered
 
 ✔ Docker Fundamentals
 
 ✔ Containerization
 
-✔ Docker Images
-
-✔ Docker Containers
+✔ Docker Architecture
 
 ✔ Docker Engine
 
-✔ Docker Architecture
+✔ Docker Daemon
 
-✔ Docker Registry
+✔ Docker CLI
 
-✔ Docker Workflow
+✔ Images
 
-✔ DevOps Integration
+✔ Containers
 
-✔ Production Deployments
+✔ Registries
 
----
+✔ OCI Standards
 
-# Repository Structure
-
-```text
-03-Docker/
-
-├── README.md
-├── docker.md
-├── installation.md
-├── docker-architecture.md
-├── images.md
-├── containers.md
-├── dockerfile.md
-├── volumes.md
-├── bind-mounts.md
-├── networks.md
-├── docker-compose.md
-├── registries.md
-├── dockerhub.md
-├── environment-variables.md
-├── logs.md
-├── inspect.md
-├── exec.md
-├── build.md
-├── push-pull.md
-├── security.md
-├── optimization.md
-├── projects.md
-├── practice-lab.md
-└── screenshots/
-```
+✔ Production Docker Workflow
 
 ---
 
 # Status
 
-🐳 Docker Section Started 🚀
+🐳 Docker Fundamentals Completed 🚀
